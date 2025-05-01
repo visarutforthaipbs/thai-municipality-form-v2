@@ -3,9 +3,9 @@ const router = express.Router();
 const cors = require("cors");
 const { MunicipalityModel, isUsingInMemoryData } = require("./db");
 
-// Configure CORS for routes
-const corsOptions = {
-  origin: ["http://localhost:3000", "http://127.0.0.1:3000", "null"],
+// Simplified CORS configuration - use the same approach as in index.js
+const corsOptions = cors({
+  origin: true, // Allow all origins
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: [
     "Content-Type",
@@ -15,10 +15,10 @@ const corsOptions = {
     "X-Requested-With",
   ],
   credentials: true,
-};
+});
 
 // Apply CORS to all routes
-router.use(cors(corsOptions));
+router.use(corsOptions);
 
 // Simple logging middleware for routes
 router.use((req, res, next) => {
@@ -27,7 +27,7 @@ router.use((req, res, next) => {
 });
 
 // API health check
-router.get("/", cors(corsOptions), (req, res) => {
+router.get("/", corsOptions, (req, res) => {
   res.json({
     status: "ok",
     message: "Municipality Budget API Server is running",
@@ -39,7 +39,7 @@ router.get("/", cors(corsOptions), (req, res) => {
 });
 
 // GET all municipalities
-router.get("/municipalities", cors(corsOptions), async (req, res) => {
+router.get("/municipalities", corsOptions, async (req, res) => {
   try {
     let municipalities;
 
@@ -61,7 +61,7 @@ router.get("/municipalities", cors(corsOptions), async (req, res) => {
 });
 
 // GET municipality by code
-router.get("/municipalities/:code", cors(corsOptions), async (req, res) => {
+router.get("/municipalities/:code", corsOptions, async (req, res) => {
   try {
     const municipality = await MunicipalityModel.findOne({
       muniCode: req.params.code,
@@ -81,7 +81,7 @@ router.get("/municipalities/:code", cors(corsOptions), async (req, res) => {
 });
 
 // POST save/update municipality data
-router.post("/saveFormData", cors(corsOptions), async (req, res) => {
+router.post("/saveFormData", corsOptions, async (req, res) => {
   try {
     // Check for authentication if needed (uncomment and implement this)
     /*
