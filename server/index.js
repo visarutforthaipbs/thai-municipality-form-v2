@@ -11,41 +11,24 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Configure CORS with environment flexibility
-const corsOptions = {
-  origin: function (origin, callback) {
-    // For Render deployment or other production environments
-    const allowedOrigins = [
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      process.env.CLIENT_URL, // Will be set in Render's environment variables
-    ].filter(Boolean);
-
-    // Allow requests with no origin (like mobile apps, curl requests, etc)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      // Log blocked origins for debugging
-      console.log(`CORS blocked request from origin: ${origin}`);
-      callback(null, false);
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "Accept",
-    "Origin",
-    "X-Requested-With",
-  ],
-  credentials: true,
-};
-
-// Apply CORS middleware before other middlewares
-app.use(cors(corsOptions));
+// Simplified CORS configuration - allow all origins during development
+app.use(
+  cors({
+    origin: true, // Allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Origin",
+      "X-Requested-With",
+    ],
+    credentials: true,
+  })
+);
 
 // Handle preflight requests for all routes
-app.options("*", cors(corsOptions));
+app.options("*", cors());
 
 // Middleware
 app.use(express.json());
@@ -76,9 +59,7 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(
-    `CORS configured for: ${process.env.CLIENT_URL || "local development"}`
-  );
+  console.log(`Server is accepting requests from all origins (CORS enabled)`);
 });
 
 module.exports = app;
