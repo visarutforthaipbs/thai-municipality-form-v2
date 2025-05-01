@@ -1,46 +1,174 @@
-# Getting Started with Create React App
+# Thai Municipality Budget Form Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack application for Thai municipalities to enter and manage their budget information.
 
-## Available Scripts
+## Project Structure
 
-In the project directory, you can run:
+The project is now organized into two main parts:
 
-### `npm start`
+- `client/`: React frontend application
+- `server/`: Express.js backend API server
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Getting Started
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Prerequisites
 
-### `npm test`
+- Node.js (v18 or higher)
+- MongoDB (local or remote)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Installation
 
-### `npm run build`
+1. Install dependencies for all parts of the application:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm run install:all
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This will install dependencies for the root project, client, and server.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Development
 
-### `npm run eject`
+To run both client and server in development mode:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+npm run dev
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This will start:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- Client on http://localhost:3000
+- Server on http://localhost:5000
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+To run only the client:
 
-## Learn More
+```bash
+npm run client
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To run only the server:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run server
+```
+
+To run the server with hot-reloading:
+
+```bash
+npm run dev:server
+```
+
+### Building for Production
+
+To build the client application:
+
+```bash
+npm run build
+```
+
+This will create a production build in the `client/build` directory.
+
+## API Endpoints
+
+- `GET /api/municipalities`: Get all municipalities
+- `GET /api/municipalities/:code`: Get a specific municipality by code
+- `POST /api/saveFormData`: Save or update municipality data
+
+## Features
+
+- บันทึกข้อมูลเทศบาลและงบประมาณ
+- เพิ่มรายละเอียดแผนงบประมาณได้หลายรายการ
+- ค้นหาข้อมูลเทศบาลจากชื่อหรือรหัส
+- บันทึกข้อมูลลงฐานข้อมูล MongoDB
+- แปลงข้อมูลเป็นรูปแบบ JSON
+
+## Prerequisites
+
+- Node.js (version 16 or higher)
+- MongoDB (local installation or MongoDB Atlas account)
+
+## Installation
+
+1. Clone the repository:
+
+   ```
+   git clone https://github.com/yourusername/thai-municipality-form-v2.git
+   cd thai-municipality-form-v2
+   ```
+
+2. Install dependencies:
+
+   ```
+   npm install
+   ```
+
+3. Configure MongoDB:
+   - Create a `.env` file in the root directory
+   - Add your MongoDB connection string:
+   ```
+   PORT=5000
+   MONGODB_URI=mongodb://localhost:27017/municipality-budget
+   ```
+   - For MongoDB Atlas, use a connection string like:
+   ```
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/municipality-budget?retryWrites=true&w=majority
+   ```
+
+## Running the Application
+
+### Development Mode (Frontend + Backend)
+
+Run both the frontend and backend servers in development mode:
+
+```
+npm run dev
+```
+
+This will start:
+
+- React frontend on http://localhost:3000
+- Express backend on http://localhost:5000
+
+### Backend Only
+
+Run only the backend server:
+
+```
+npm run server
+```
+
+### Frontend Only
+
+Run only the frontend server:
+
+```
+npm start
+```
+
+## Build for Production
+
+Create a production build of the frontend:
+
+```
+npm run build
+```
+
+## Project Structure
+
+- `src/` - React frontend application
+- `server/` - Express backend application
+  - `server/index.js` - Main server entry point
+  - `server/db.js` - MongoDB connection and models
+  - `server/routes.js` - API routes
+
+## Deployment
+
+To deploy this application:
+
+1. Set up a MongoDB instance (MongoDB Atlas recommended for production)
+2. Deploy the Express backend to a hosting service (Heroku, DigitalOcean, etc.)
+3. Update the API URL in `src/components/MunicipalityForm.tsx` to point to your deployed backend
+4. Deploy the React frontend (Netlify, Vercel, etc.)
+
+## License
+
+This project is licensed under the MIT License.

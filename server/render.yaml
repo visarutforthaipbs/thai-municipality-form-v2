@@ -1,0 +1,26 @@
+services:
+  # Backend API service
+  - type: web
+    name: municipality-budget-api
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://your-frontend-app-url.onrender.com # Replace with your actual frontend URL
+      - key: MONGODB_URI
+        sync: false # This will be manually set in Render dashboard for security
+
+  # Frontend web service (optional, if you want to deploy frontend too)
+  - type: web
+    name: municipality-budget-client
+    env: static
+    buildCommand: cd ../client && npm install && npm run build
+    staticPublishPath: ../client/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://municipality-budget-api.onrender.com # This should match the URL of your API service
