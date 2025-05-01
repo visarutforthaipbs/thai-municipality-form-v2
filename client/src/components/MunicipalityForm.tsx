@@ -102,7 +102,7 @@ const MunicipalityForm: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<Municipality[]>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
-  const [saveInProgress, setSaveInProgress] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [serverStatus, setServerStatus] = useState<
     "connected" | "disconnected" | "checking"
   >("checking");
@@ -327,7 +327,7 @@ const MunicipalityForm: React.FC = () => {
     }
 
     try {
-      setSaveInProgress(true);
+      setIsSaving(true);
 
       // Check server connectivity first
       const isConnected = await checkServerConnectivity();
@@ -476,7 +476,7 @@ const MunicipalityForm: React.FC = () => {
         isClosable: true,
       });
     } finally {
-      setSaveInProgress(false);
+      setIsSaving(false);
     }
   };
 
@@ -493,17 +493,18 @@ const MunicipalityForm: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box maxW="900px" mx="auto">
       {/* Server Status Indicator */}
       {serverStatus === "disconnected" && (
         <Box
-          p={3}
-          mb={4}
+          p={2}
+          mb={3}
           bg="red.100"
           color="red.800"
           rounded="md"
           border="1px solid"
           borderColor="red.300"
+          fontSize="sm"
         >
           <Text fontWeight="medium">
             ⚠️ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้
@@ -513,13 +514,13 @@ const MunicipalityForm: React.FC = () => {
       )}
 
       {/* Section 1: Municipal Info */}
-      <Box p={10} rounded="lg" shadow="md" mb={8} bg="white">
-        <Heading fontSize="xl" fontWeight="bold" mb={6}>
+      <Box p={5} rounded="lg" shadow="sm" mb={4} bg="white">
+        <Heading fontSize="lg" fontWeight="bold" mb={3}>
           🏛️ ข้อมูลเทศบาล (Municipal Info)
         </Heading>
-        <Flex wrap="wrap" margin="-12px">
-          <Box width={{ base: "80%", md: "50%" }} p="12px">
-            <Text fontWeight="medium" mb={5}>
+        <Flex wrap="wrap" margin="-8px">
+          <Box width={{ base: "80%", md: "50%" }} p="8px">
+            <Text fontWeight="medium" mb={2} fontSize="sm">
               รหัส อปท.
             </Text>
             <Input
@@ -531,12 +532,13 @@ const MunicipalityForm: React.FC = () => {
               variant="outline"
               borderColor="gray.300"
               _focus={{ borderColor: "green.400" }}
-              size="md"
+              size="sm"
+              height="32px"
             />
           </Box>
 
-          <Box width={{ base: "100%", md: "50%" }} p="12px" position="relative">
-            <Text fontWeight="medium" mb={3}>
+          <Box width={{ base: "100%", md: "50%" }} p="8px" position="relative">
+            <Text fontWeight="medium" mb={2} fontSize="sm">
               ชื่อเทศบาล
             </Text>
             <Input
@@ -548,7 +550,8 @@ const MunicipalityForm: React.FC = () => {
               variant="outline"
               borderColor="gray.300"
               _focus={{ borderColor: "green.400" }}
-              size="md"
+              size="sm"
+              height="32px"
             />
             {/* Search results dropdown */}
             {showResults && searchResults.length > 0 && (
@@ -560,20 +563,22 @@ const MunicipalityForm: React.FC = () => {
                 shadow="md"
                 rounded="md"
                 mt={1}
-                maxH="200px"
+                maxH="150px"
                 overflowY="auto"
               >
                 <Box>
                   {searchResults.map((muni) => (
                     <Box
                       key={muni.code}
-                      p={2}
+                      p={1.5}
                       cursor="pointer"
                       _hover={{ bg: "gray.100" }}
                       onClick={() => selectMunicipality(muni)}
                     >
-                      <Text fontWeight="medium">{muni.name}</Text>
-                      <Text fontSize="sm" color="gray.600">
+                      <Text fontWeight="medium" fontSize="sm">
+                        {muni.name}
+                      </Text>
+                      <Text fontSize="xs" color="gray.600">
                         {muni.province} (รหัส: {muni.code})
                       </Text>
                     </Box>
@@ -583,8 +588,8 @@ const MunicipalityForm: React.FC = () => {
             )}
           </Box>
 
-          <Box width={{ base: "100%", md: "50%" }} p="12px">
-            <Text fontWeight="medium" mb={3}>
+          <Box width={{ base: "100%", md: "50%" }} p="8px">
+            <Text fontWeight="medium" mb={2} fontSize="sm">
               จังหวัด
             </Text>
             <Input
@@ -596,12 +601,13 @@ const MunicipalityForm: React.FC = () => {
               variant="outline"
               borderColor="gray.300"
               _focus={{ borderColor: "green.400" }}
-              size="md"
+              size="sm"
+              height="32px"
             />
           </Box>
 
-          <Box width={{ base: "100%", md: "50%" }} p="12px">
-            <Text fontWeight="medium" mb={3}>
+          <Box width={{ base: "100%", md: "50%" }} p="8px">
+            <Text fontWeight="medium" mb={2} fontSize="sm">
               เว็บไซต์
             </Text>
             <Input
@@ -613,12 +619,13 @@ const MunicipalityForm: React.FC = () => {
               variant="outline"
               borderColor="gray.300"
               _focus={{ borderColor: "green.400" }}
-              size="md"
+              size="sm"
+              height="32px"
             />
           </Box>
 
-          <Box width={{ base: "100%", md: "50%" }} p="12px">
-            <Text fontWeight="medium" mb={3}>
+          <Box width={{ base: "100%", md: "50%" }} p="8px">
+            <Text fontWeight="medium" mb={2} fontSize="sm">
               งบประมาณรวม
             </Text>
             <Box position="relative">
@@ -631,25 +638,26 @@ const MunicipalityForm: React.FC = () => {
                 rounded="md"
                 borderColor="gray.300"
                 _focus={{ borderColor: "green.400" }}
-                paddingRight="50px"
-                size="md"
+                paddingRight="40px"
+                size="sm"
+                height="32px"
               />
               <Text
                 position="absolute"
-                right="12px"
+                right="10px"
                 top="50%"
                 transform="translateY(-50%)"
                 pointerEvents="none"
                 color="gray.500"
-                fontSize="md"
+                fontSize="xs"
               >
                 บาท
               </Text>
             </Box>
           </Box>
 
-          <Box width={{ base: "100%", md: "50%" }} p="12px">
-            <Text fontWeight="medium" mb={3}>
+          <Box width={{ base: "100%", md: "50%" }} p="8px">
+            <Text fontWeight="medium" mb={2} fontSize="sm">
               รายจ่ายจริงรวม
             </Text>
             <Box position="relative">
@@ -662,17 +670,18 @@ const MunicipalityForm: React.FC = () => {
                 rounded="md"
                 borderColor="gray.300"
                 _focus={{ borderColor: "green.400" }}
-                paddingRight="50px"
-                size="md"
+                paddingRight="40px"
+                size="sm"
+                height="32px"
               />
               <Text
                 position="absolute"
-                right="12px"
+                right="10px"
                 top="50%"
                 transform="translateY(-50%)"
                 pointerEvents="none"
                 color="gray.500"
-                fontSize="md"
+                fontSize="xs"
               >
                 บาท
               </Text>
@@ -682,26 +691,26 @@ const MunicipalityForm: React.FC = () => {
       </Box>
 
       {/* Section 2: Budget Plan Details */}
-      <Box p={10} rounded="lg" shadow="md" mb={8} bg="white">
-        <Flex justifyContent="space-between" alignItems="center" mb={6}>
-          <Heading fontSize="xl" fontWeight="bold">
+      <Box p={5} rounded="lg" shadow="sm" mb={4} bg="white">
+        <Flex justifyContent="space-between" alignItems="center" mb={3}>
+          <Heading fontSize="lg" fontWeight="bold">
             📊 รายละเอียดแผนงบประมาณ
           </Heading>
           <Button
             colorScheme="green"
             variant="solid"
             onClick={addPlanItem}
-            size="lg"
-            py={6}
-            px={6}
+            size="sm"
+            px={3}
+            height="30px"
           >
-            + เพิ่มแผนงบประมาณ
+            + เพิ่มแผนงาน
           </Button>
         </Flex>
 
         {formData.plans.length === 0 ? (
-          <Box p={4} bg="gray.50" rounded="md" textAlign="center">
-            <Text color="gray.500">
+          <Box p={3} bg="gray.50" rounded="md" textAlign="center">
+            <Text color="gray.500" fontSize="sm">
               ยังไม่มีแผนงบประมาณ กรุณาเพิ่มแผนงบประมาณ
             </Text>
           </Box>
@@ -710,26 +719,27 @@ const MunicipalityForm: React.FC = () => {
             {formData.plans.map((plan, index) => (
               <Box
                 key={index}
-                p={6}
+                p={3}
                 rounded="md"
                 borderWidth="1px"
                 borderColor="gray.200"
-                mb={5}
+                mb={3}
               >
-                <Flex justify="space-between" mb={2}>
-                  <Heading fontSize="md">แผนงบประมาณ #{index + 1}</Heading>
+                <Flex justify="space-between" mb={2} alignItems="center">
+                  <Heading fontSize="sm">แผนงบประมาณ #{index + 1}</Heading>
                   <Button
-                    size="sm"
+                    size="xs"
                     colorScheme="red"
                     variant="ghost"
                     onClick={() => removePlanItem(index)}
+                    height="24px"
                   >
                     ลบ
                   </Button>
                 </Flex>
-                <Flex wrap="wrap" margin="-12px">
-                  <Box width={{ base: "100%", md: "50%" }} p="12px">
-                    <Text fontWeight="medium" mb={3}>
+                <Flex wrap="wrap" margin="-8px">
+                  <Box width={{ base: "100%", md: "50%" }} p="8px">
+                    <Text fontWeight="medium" mb={2} fontSize="sm">
                       ประเภท
                     </Text>
                     <Box position="relative">
@@ -738,13 +748,13 @@ const MunicipalityForm: React.FC = () => {
                         onChange={(e) => handleSelectChange(e, index)}
                         style={{
                           width: "100%",
-                          padding: "12px 16px",
+                          padding: "6px 10px",
                           borderRadius: "0.375rem",
                           border: "1px solid",
                           borderColor: "#CBD5E0",
                           outline: "none",
-                          height: "50px",
-                          fontSize: "16px",
+                          height: "32px",
+                          fontSize: "14px",
                         }}
                       >
                         {CATEGORIES.map((category) => (
@@ -756,8 +766,8 @@ const MunicipalityForm: React.FC = () => {
                     </Box>
                   </Box>
 
-                  <Box width={{ base: "100%", md: "50%" }} p="12px">
-                    <Text fontWeight="medium" mb={3}>
+                  <Box width={{ base: "100%", md: "50%" }} p="8px">
+                    <Text fontWeight="medium" mb={2} fontSize="sm">
                       แผนงาน
                     </Text>
                     <Input
@@ -770,13 +780,13 @@ const MunicipalityForm: React.FC = () => {
                       variant="outline"
                       borderColor="gray.300"
                       _focus={{ borderColor: "green.400" }}
-                      size="lg"
-                      py={6}
+                      size="sm"
+                      height="32px"
                     />
                   </Box>
 
-                  <Box width={{ base: "100%", md: "50%" }} p="12px">
-                    <Text fontWeight="medium" mb={3}>
+                  <Box width={{ base: "100%", md: "50%" }} p="8px">
+                    <Text fontWeight="medium" mb={2} fontSize="sm">
                       งบประมาณ
                     </Text>
                     <Box position="relative">
@@ -794,26 +804,26 @@ const MunicipalityForm: React.FC = () => {
                         rounded="md"
                         borderColor="gray.300"
                         _focus={{ borderColor: "green.400" }}
-                        paddingRight="50px"
-                        size="lg"
-                        py={6}
+                        paddingRight="40px"
+                        size="sm"
+                        height="32px"
                       />
                       <Text
                         position="absolute"
-                        right="12px"
+                        right="10px"
                         top="50%"
                         transform="translateY(-50%)"
                         pointerEvents="none"
                         color="gray.500"
-                        fontSize="md"
+                        fontSize="xs"
                       >
                         บาท
                       </Text>
                     </Box>
                   </Box>
 
-                  <Box width={{ base: "100%", md: "50%" }} p="12px">
-                    <Text fontWeight="medium" mb={3}>
+                  <Box width={{ base: "100%", md: "50%" }} p="8px">
+                    <Text fontWeight="medium" mb={2} fontSize="sm">
                       ใช้จริง
                     </Text>
                     <Box position="relative">
@@ -831,18 +841,18 @@ const MunicipalityForm: React.FC = () => {
                         rounded="md"
                         borderColor="gray.300"
                         _focus={{ borderColor: "green.400" }}
-                        paddingRight="50px"
-                        size="lg"
-                        py={6}
+                        paddingRight="40px"
+                        size="sm"
+                        height="32px"
                       />
                       <Text
                         position="absolute"
-                        right="12px"
+                        right="10px"
                         top="50%"
                         transform="translateY(-50%)"
                         pointerEvents="none"
                         color="gray.500"
-                        fontSize="md"
+                        fontSize="xs"
                       >
                         บาท
                       </Text>
@@ -856,51 +866,51 @@ const MunicipalityForm: React.FC = () => {
       </Box>
 
       {/* Section 3: Actions */}
-      <Box p={8} rounded="lg" shadow="md" bg="white">
-        <Heading fontSize="xl" fontWeight="bold" mb={6}>
+      <Box p={4} rounded="lg" shadow="sm" mb={4} bg="white">
+        <Heading fontSize="lg" fontWeight="bold" mb={3}>
           🔄 ดำเนินการ (Actions)
         </Heading>
         <Box>
           <Flex
             flexWrap={{ base: "wrap", md: "nowrap" }}
-            gap="16px"
+            gap="10px"
             justifyContent="center"
-            mb={6}
+            mb={3}
           >
             <Button
               colorScheme="blue"
               onClick={generateJson}
               flex={{ base: "1", md: "auto" }}
-              size="lg"
-              py={7}
-              px={8}
+              size="sm"
+              height="32px"
+              px={4}
               fontWeight="bold"
             >
               📄 แปลงเป็น JSON
             </Button>
             <Button
-              colorScheme="green"
+              colorScheme="teal"
               onClick={saveToMongoDB}
-              disabled={saveInProgress}
+              loading={isSaving}
               flex={{ base: "1", md: "auto" }}
-              size="lg"
-              py={7}
-              px={8}
+              size="sm"
+              height="32px"
+              px={4}
               fontWeight="bold"
             >
-              {saveInProgress ? "⏳ กำลังบันทึก..." : "✅ บันทึกข้อมูล"}
+              💾 บันทึกข้อมูล
             </Button>
             <Button
               colorScheme="red"
               variant="outline"
               onClick={resetForm}
               flex={{ base: "1", md: "auto" }}
-              size="lg"
-              py={7}
-              px={8}
+              size="sm"
+              height="32px"
+              px={4}
               fontWeight="bold"
             >
-              🔄 ล้างฟอร์ม
+              🔄 รีเซ็ตฟอร์ม
             </Button>
           </Flex>
 

@@ -13,6 +13,8 @@ body {
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 0.95rem; /* Reduced base font size */
+  line-height: 1.4; /* Tighter line height */
 }
 
 code {
@@ -28,4 +30,37 @@ body {
 
 #root {
   height: 100%;
+  max-width: 1000px; /* Reduced from default */
+  margin: 0 auto; /* Center content */
+}
+
+/* Reduce overall UI size */
+.chakra-heading {
+  font-size: 1.3rem !important;
+}
+
+.chakra-text {
+  font-size: 0.9rem !important;
+}
+
+.chakra-button {
+  font-size: 0.9rem !important;
+  padding: 0.4rem 0.8rem !important;
+}
+
+.chakra-input,
+.chakra-select,
+.chakra-textarea {
+  height: 2rem !important;
+  font-size: 0.9rem !important;
+  padding: 0.3rem 0.6rem !important;
+}
+
+/* Adjust spacing and containers */
+.chakra-container {
+  padding: 0.6rem !important;
+}
+
+.chakra-stack {
+  gap: 0.6rem !important;
 }
