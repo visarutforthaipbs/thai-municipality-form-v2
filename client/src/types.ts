@@ -1,7 +1,6 @@
 export interface PlanItem {
   category: string;
   plan: string;
-  budget: number;
   actual: number;
 }
 
@@ -10,7 +9,6 @@ export interface MunicipalityFormData {
   muniName: string;
   province: string;
   website: string;
-  totalBudget: number;
   totalSpent: number;
   plans: PlanItem[];
 }

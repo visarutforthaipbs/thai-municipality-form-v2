@@ -15,7 +15,6 @@ const emptyFormData: MunicipalityFormData = {
   muniName: "",
   province: "",
   website: "",
-  totalBudget: 0,
   totalSpent: 0,
   plans: [],
 };
@@ -24,7 +23,6 @@ const emptyFormData: MunicipalityFormData = {
 const emptyPlanItem: PlanItem = {
   category: CATEGORIES[0],
   plan: "",
-  budget: 0,
   actual: 0,
 };
 
@@ -98,7 +96,6 @@ const showToast = (props: {
 
 const MunicipalityForm: React.FC = () => {
   const [formData, setFormData] = useState<MunicipalityFormData>(emptyFormData);
-  const [jsonOutput, setJsonOutput] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<Municipality[]>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
@@ -162,6 +159,26 @@ const MunicipalityForm: React.FC = () => {
     }
   }, [searchQuery, municipalities]);
 
+  // Auto-calculate totalSpent from the sum of all plan actual values
+  useEffect(() => {
+    // Create a string representation of the actual values to use as dependency
+    const actuals = formData.plans.map((plan) => plan.actual);
+
+    const totalActual = actuals.reduce(
+      (sum, actual) => sum + (Number(actual) || 0),
+      0
+    );
+
+    // Only update if the value has changed to avoid infinite loops
+    if (totalActual !== formData.totalSpent) {
+      setFormData((prev) => ({
+        ...prev,
+        totalSpent: totalActual,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(formData.plans.map((plan) => plan.actual))]);
+
   // Select municipality from search results
   const selectMunicipality = (municipality: Municipality) => {
     setFormData((prev) => ({
@@ -221,18 +238,24 @@ const MunicipalityForm: React.FC = () => {
 
   // Add a new plan item
   const addPlanItem = () => {
-    setFormData((prev) => ({
-      ...prev,
-      plans: [...prev.plans, { ...emptyPlanItem }],
-    }));
+    setFormData((prev) => {
+      const updatedPlans = [...prev.plans, { ...emptyPlanItem }];
+      return {
+        ...prev,
+        plans: updatedPlans,
+      };
+    });
   };
 
   // Remove a plan item
   const removePlanItem = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      plans: prev.plans.filter((_, i) => i !== index),
-    }));
+    setFormData((prev) => {
+      const updatedPlans = prev.plans.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        plans: updatedPlans,
+      };
+    });
   };
 
   // Handle plan item changes for text fields
@@ -273,44 +296,7 @@ const MunicipalityForm: React.FC = () => {
     });
   };
 
-  // Generate JSON output
-  const generateJson = () => {
-    // Create the plans data structure
-    const plansData = formData.plans.map((plan) => ({
-      category: plan.category,
-      plan: plan.plan,
-      budget: plan.budget,
-      actual: plan.actual,
-    }));
-
-    // Create the formatted data structure
-    const formattedData = {
-      "รหัส อปท.": [formData.muniCode],
-      "ชื่ออปท.": [formData.muniName],
-      จังหวัด: [formData.province],
-      เว็บไซต์: [formData.website],
-      งบประมาณรวม: [formData.totalBudget],
-      รายจ่ายจริงรวม: [formData.totalSpent],
-      แผนงบประมาณ: plansData.map((plan) => ({
-        ประเภท: plan.category,
-        แผนงาน: plan.plan,
-        งบประมาณ: plan.budget,
-        ใช้จริง: plan.actual,
-      })),
-    };
-
-    // Set the JSON output
-    setJsonOutput(JSON.stringify(formattedData, null, 2));
-
-    // Show a toast message
-    showToast({
-      title: "JSON แปลงเรียบร้อย",
-      description: "คุณสามารถคัดลอกข้อมูล JSON ได้",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-    });
-  };
+  // Generate JSON output function removed as we're using direct MongoDB storage
 
   // Save to MongoDB
   const saveToMongoDB = async () => {
@@ -343,17 +329,18 @@ const MunicipalityForm: React.FC = () => {
         });
 
         // Create formatted data structure for local storage
+        // Include budget fields to maintain compatibility with existing data format
         const localData = {
           "รหัส อปท.": [formData.muniCode],
           "ชื่ออปท.": [formData.muniName],
           จังหวัด: [formData.province],
           เว็บไซต์: [formData.website],
-          งบประมาณรวม: [formData.totalBudget],
+          งบประมาณรวม: [formData.totalSpent], // For backward compatibility
           รายจ่ายจริงรวม: [formData.totalSpent],
           แผนงบประมาณ: formData.plans.map((plan) => ({
             ประเภท: plan.category,
             แผนงาน: plan.plan,
-            งบประมาณ: plan.budget,
+            งบประมาณ: plan.actual, // For backward compatibility
             ใช้จริง: plan.actual,
           })),
         };
@@ -384,17 +371,18 @@ const MunicipalityForm: React.FC = () => {
       const saveFormDataUrl = `${baseUrl}/api/saveFormData`;
 
       // Create request body with the format expected by our API
+      // Include budget fields to maintain compatibility with existing MongoDB schema
       const requestBody = {
         muniCode: formData.muniCode,
         muniName: formData.muniName,
         province: formData.province,
         website: formData.website,
-        totalBudget: formData.totalBudget,
+        totalBudget: formData.totalSpent, // For backward compatibility, use totalSpent as totalBudget
         totalSpent: formData.totalSpent,
         plans: formData.plans.map((plan) => ({
           category: plan.category,
           plan: plan.plan,
-          budget: plan.budget,
+          budget: plan.actual, // For backward compatibility, use actual as budget
           actual: plan.actual,
         })),
       };
@@ -483,7 +471,6 @@ const MunicipalityForm: React.FC = () => {
   // Reset form
   const resetForm = () => {
     setFormData(emptyFormData);
-    setJsonOutput("");
     showToast({
       title: "ล้างฟอร์มเรียบร้อย",
       status: "info",
@@ -626,13 +613,14 @@ const MunicipalityForm: React.FC = () => {
 
           <Box width={{ base: "100%", md: "50%" }} p="8px">
             <Text fontWeight="medium" mb={2} fontSize="sm">
-              งบประมาณรวม
+              รายจ่ายจริงรวม (คำนวณอัตโนมัติ)
             </Text>
             <Box position="relative">
               <Input
-                name="totalBudget"
-                value={formData.totalBudget}
-                onChange={handleNumberChange}
+                name="totalSpent"
+                value={formData.totalSpent}
+                readOnly
+                bg="gray.50"
                 type="number"
                 min={0}
                 rounded="md"
@@ -653,37 +641,8 @@ const MunicipalityForm: React.FC = () => {
               >
                 บาท
               </Text>
-            </Box>
-          </Box>
-
-          <Box width={{ base: "100%", md: "50%" }} p="8px">
-            <Text fontWeight="medium" mb={2} fontSize="sm">
-              รายจ่ายจริงรวม
-            </Text>
-            <Box position="relative">
-              <Input
-                name="totalSpent"
-                value={formData.totalSpent}
-                onChange={handleNumberChange}
-                type="number"
-                min={0}
-                rounded="md"
-                borderColor="gray.300"
-                _focus={{ borderColor: "green.400" }}
-                paddingRight="40px"
-                size="sm"
-                height="32px"
-              />
-              <Text
-                position="absolute"
-                right="10px"
-                top="50%"
-                transform="translateY(-50%)"
-                pointerEvents="none"
-                color="gray.500"
-                fontSize="xs"
-              >
-                บาท
+              <Text fontSize="xs" color="gray.500" mt={1}>
+                *คำนวณจากผลรวมของ "ใช้จริง" ทั้งหมดในแผนงบประมาณ
               </Text>
             </Box>
           </Box>
@@ -787,43 +746,6 @@ const MunicipalityForm: React.FC = () => {
 
                   <Box width={{ base: "100%", md: "50%" }} p="8px">
                     <Text fontWeight="medium" mb={2} fontSize="sm">
-                      งบประมาณ
-                    </Text>
-                    <Box position="relative">
-                      <Input
-                        value={plan.budget}
-                        onChange={(e) =>
-                          handlePlanNumberChange(
-                            index,
-                            "budget",
-                            e.target.value
-                          )
-                        }
-                        type="number"
-                        min={0}
-                        rounded="md"
-                        borderColor="gray.300"
-                        _focus={{ borderColor: "green.400" }}
-                        paddingRight="40px"
-                        size="sm"
-                        height="32px"
-                      />
-                      <Text
-                        position="absolute"
-                        right="10px"
-                        top="50%"
-                        transform="translateY(-50%)"
-                        pointerEvents="none"
-                        color="gray.500"
-                        fontSize="xs"
-                      >
-                        บาท
-                      </Text>
-                    </Box>
-                  </Box>
-
-                  <Box width={{ base: "100%", md: "50%" }} p="8px">
-                    <Text fontWeight="medium" mb={2} fontSize="sm">
                       ใช้จริง
                     </Text>
                     <Box position="relative">
@@ -863,6 +785,21 @@ const MunicipalityForm: React.FC = () => {
             ))}
           </Box>
         )}
+
+        {formData.plans.length > 0 && (
+          <Box mt={3} textAlign="center">
+            <Button
+              colorScheme="green"
+              variant="outline"
+              onClick={addPlanItem}
+              size="sm"
+              px={3}
+              height="30px"
+            >
+              + เพิ่มแผนงาน
+            </Button>
+          </Box>
+        )}
       </Box>
 
       {/* Section 3: Actions */}
@@ -877,17 +814,6 @@ const MunicipalityForm: React.FC = () => {
             justifyContent="center"
             mb={3}
           >
-            <Button
-              colorScheme="blue"
-              onClick={generateJson}
-              flex={{ base: "1", md: "auto" }}
-              size="sm"
-              height="32px"
-              px={4}
-              fontWeight="bold"
-            >
-              📄 แปลงเป็น JSON
-            </Button>
             <Button
               colorScheme="teal"
               onClick={saveToMongoDB}
@@ -913,25 +839,6 @@ const MunicipalityForm: React.FC = () => {
               🔄 รีเซ็ตฟอร์ม
             </Button>
           </Flex>
-
-          {jsonOutput && (
-            <Box mt={4}>
-              <Text fontWeight="medium" mb={2}>
-                JSON Output:
-              </Text>
-              <Box
-                p={4}
-                bg="gray.50"
-                rounded="md"
-                fontSize="sm"
-                fontFamily="monospace"
-                overflowX="auto"
-                whiteSpace="pre"
-              >
-                {jsonOutput}
-              </Box>
-            </Box>
-          )}
         </Box>
       </Box>
     </Box>
