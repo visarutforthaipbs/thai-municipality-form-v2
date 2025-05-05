@@ -9,6 +9,67 @@ import {
 } from "../utils/municipalityData";
 import { DEV_MODE } from "../services/mongoService";
 
+// Helper functions for category colors
+const getCategoryBgColor = (category: string) => {
+  switch (category) {
+    case "ด้านบริหารทั่วไป":
+      return "blue.50";
+    case "ด้านบริการชุมชนและสังคม":
+      return "green.50";
+    case "ด้านเศรษฐกิจ":
+      return "yellow.50";
+    case "ด้านดำเนินงานอื่น":
+      return "purple.50";
+    default:
+      return "white";
+  }
+};
+
+const getCategoryLabelBgColor = (category: string) => {
+  switch (category) {
+    case "ด้านบริหารทั่วไป":
+      return "blue.100";
+    case "ด้านบริการชุมชนและสังคม":
+      return "green.100";
+    case "ด้านเศรษฐกิจ":
+      return "yellow.100";
+    case "ด้านดำเนินงานอื่น":
+      return "purple.100";
+    default:
+      return "gray.100";
+  }
+};
+
+const getCategoryTextColor = (category: string) => {
+  switch (category) {
+    case "ด้านบริหารทั่วไป":
+      return "blue.700";
+    case "ด้านบริการชุมชนและสังคม":
+      return "green.700";
+    case "ด้านเศรษฐกิจ":
+      return "yellow.700";
+    case "ด้านดำเนินงานอื่น":
+      return "purple.700";
+    default:
+      return "gray.700";
+  }
+};
+
+const getCategorySelectBgColor = (category: string) => {
+  switch (category) {
+    case "ด้านบริหารทั่วไป":
+      return "#EBF8FF"; // blue.50 equivalent
+    case "ด้านบริการชุมชนและสังคม":
+      return "#F0FFF4"; // green.50 equivalent
+    case "ด้านเศรษฐกิจ":
+      return "#FFFFF0"; // yellow.50 equivalent
+    case "ด้านดำเนินงานอื่น":
+      return "#FAF5FF"; // purple.50 equivalent
+    default:
+      return "white";
+  }
+};
+
 // Default empty form data
 const emptyFormData: MunicipalityFormData = {
   muniCode: "",
@@ -313,6 +374,7 @@ const MunicipalityForm: React.FC = () => {
     }
 
     try {
+      // Set loading state
       setIsSaving(true);
 
       // Check server connectivity first
@@ -320,6 +382,9 @@ const MunicipalityForm: React.FC = () => {
 
       // If server is unavailable, use DEV_MODE (localStorage)
       if (!isConnected) {
+        // Simulate some delay for better UX
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
         showToast({
           title: "เซิร์ฟเวอร์ไม่พร้อมใช้งาน",
           description: "ระบบจะบันทึกข้อมูลแบบออฟไลน์",
@@ -464,6 +529,7 @@ const MunicipalityForm: React.FC = () => {
         isClosable: true,
       });
     } finally {
+      // Always clear loading state
       setIsSaving(false);
     }
   };
@@ -481,6 +547,59 @@ const MunicipalityForm: React.FC = () => {
 
   return (
     <Box maxW="900px" mx="auto">
+      {/* Saving Indicator Overlay */}
+      {isSaving && (
+        <Box
+          position="fixed"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          bg="rgba(0, 0, 0, 0.5)"
+          zIndex="9999"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Box
+            bg="white"
+            p={5}
+            borderRadius="md"
+            textAlign="center"
+            boxShadow="lg"
+            maxW="300px"
+            width="100%"
+          >
+            <div
+              style={{
+                display: "inline-block",
+                width: "40px",
+                height: "40px",
+                margin: "0 auto 12px auto",
+                border: "4px solid rgba(0, 0, 0, 0.1)",
+                borderTopColor: "#38B2AC",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            <style>
+              {`
+                @keyframes spin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+              `}
+            </style>
+            <Text fontSize="lg" fontWeight="bold" color="gray.800">
+              กำลังบันทึกข้อมูล
+            </Text>
+            <Text fontSize="sm" color="gray.600" mt={1}>
+              โปรดรอสักครู่...
+            </Text>
+          </Box>
+        </Box>
+      )}
+
       {/* Server Status Indicator */}
       {serverStatus === "disconnected" && (
         <Box
@@ -667,6 +786,24 @@ const MunicipalityForm: React.FC = () => {
           </Button>
         </Flex>
 
+        {/* Category color legend */}
+        <Flex wrap="wrap" mb={4} gap={2}>
+          {CATEGORIES.map((category) => (
+            <Box
+              key={category}
+              px={2}
+              py={1}
+              borderRadius="md"
+              fontSize="xs"
+              fontWeight="medium"
+              bg={getCategoryLabelBgColor(category)}
+              color={getCategoryTextColor(category)}
+            >
+              {category}
+            </Box>
+          ))}
+        </Flex>
+
         {formData.plans.length === 0 ? (
           <Box p={3} bg="gray.50" rounded="md" textAlign="center">
             <Text color="gray.500" fontSize="sm">
@@ -683,18 +820,33 @@ const MunicipalityForm: React.FC = () => {
                 borderWidth="1px"
                 borderColor="gray.200"
                 mb={3}
+                bg={getCategoryBgColor(plan.category)}
               >
                 <Flex justify="space-between" mb={2} alignItems="center">
                   <Heading fontSize="sm">แผนงบประมาณ #{index + 1}</Heading>
-                  <Button
-                    size="xs"
-                    colorScheme="red"
-                    variant="ghost"
-                    onClick={() => removePlanItem(index)}
-                    height="24px"
-                  >
-                    ลบ
-                  </Button>
+                  <Flex alignItems="center">
+                    <Box
+                      px={2}
+                      py={1}
+                      mr={2}
+                      borderRadius="md"
+                      fontSize="xs"
+                      fontWeight="medium"
+                      bg={getCategoryLabelBgColor(plan.category)}
+                      color={getCategoryTextColor(plan.category)}
+                    >
+                      {plan.category}
+                    </Box>
+                    <Button
+                      size="xs"
+                      colorScheme="red"
+                      variant="ghost"
+                      onClick={() => removePlanItem(index)}
+                      height="24px"
+                    >
+                      ลบ
+                    </Button>
+                  </Flex>
                 </Flex>
                 <Flex wrap="wrap" margin="-8px">
                   <Box width={{ base: "100%", md: "50%" }} p="8px">
@@ -714,6 +866,9 @@ const MunicipalityForm: React.FC = () => {
                           outline: "none",
                           height: "32px",
                           fontSize: "14px",
+                          backgroundColor: getCategorySelectBgColor(
+                            plan.category
+                          ),
                         }}
                       >
                         {CATEGORIES.map((category) => (
@@ -824,12 +979,13 @@ const MunicipalityForm: React.FC = () => {
               px={4}
               fontWeight="bold"
             >
-              💾 บันทึกข้อมูล
+              {isSaving ? "กำลังบันทึก..." : "💾 บันทึกข้อมูล"}
             </Button>
             <Button
               colorScheme="red"
               variant="outline"
               onClick={resetForm}
+              disabled={isSaving}
               flex={{ base: "1", md: "auto" }}
               size="sm"
               height="32px"
